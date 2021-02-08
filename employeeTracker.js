@@ -16,193 +16,383 @@ const connection = mysql.createConnection({
   database: 'employee_tracker_DB',
 });
 
-
+// connection.connect(function(err) {
+//   if (err) throw err;
+//   afterConnection();
+// });
 
 
 const afterConnection = () => {
-  connection.query('SELECT * FROM role', (err, res) => {
-    if (err) throw err;
-    console.table(res);
-    connection.end();
-  });
+  
+
+  inquirer
+    .prompt({
+      name: 'choiceType',
+      type: 'rawlist',
+      message: ' would you like to do?',
+      choices: ['ADD','VIEW', 'UPDATE', 'EXIT'],
+    })
+    .then((answer) => {
+      switch (answer.choiceType) {
+        case 'ADD':
+          addFunction();
+          break;
+
+        case 'VIEW':
+          viewFunction();
+          break;
+
+        case 'UPDATE':
+          updateEmployee();
+          break;
+
+        case 'EXIT':
+          connection.end();
+
+        default:
+          console.log(`Invalid action: ${answer.action}`);
+          break;
+      }
+    });
+};
+afterConnection();
+
+
+
+const viewFunction = () => {
+  
+
+  inquirer
+    .prompt({
+      name: 'viewType',
+      type: 'rawlist',
+      message: ' would you like to do view?',
+    choices: ['EMPLOYEE','ROLE', 'DEPARTMENT', 'EXIT'],
+    })
+    .then((answer) => {
+      switch (answer.viewType) {
+        case 'EMPLOYEE':
+          viewEmployee();
+          break;
+
+        case 'ROLE':
+          viewRole();
+          break;
+
+        case 'DEPARTMENT':
+          viewDepartment();
+          break;
+
+        case 'EXIT':
+          connection.end();
+
+        default:
+          console.log(`Invalid action: ${answer.action}`);
+          break;
+      }
+    });
 };
 
-connection.connect((err) => {
-  if (err) throw err;
-  console.log(`connected as id ${connection.threadId}`);
-  afterConnection();
-});
+
+    const viewEmployee = () => {
+    console.log('Selecting all employee...\n');
+    connection.query('SELECT * FROM employee', (err, res) => {
+      if (err) throw err;
+      // Log all results of the SELECT statement
+      console.table(res);
+      afterConnection();
+    });
+  };
+
+  const viewRole = () => {
+    console.log('Selecting all role...\n');
+    connection.query('SELECT * FROM role', (err, res) => {
+      if (err) throw err;
+      // Log all results of the SELECT statement
+      console.table(res);
+      afterConnection();
+    });
+  };
+
+  const viewDepartment = () => {
+    console.log('Selecting all department...\n');
+    connection.query('SELECT * FROM department', (err, res) => {
+      if (err) throw err;
+      // Log all results of the SELECT statement
+      console.table(res);
+      afterConnection();
+    });
+  };
+
+
+console.log('-------------------------');
+
+  const addFunction = () => {
+  
+
+    inquirer
+      .prompt({
+        name: 'addType',
+        type: 'rawlist',
+        message: ' what would you like to add?',
+      choices: ['EMPLOYEE','ROLE', 'DEPARTMENT', 'EXIT'],
+      })
+      .then((answer) => {
+        switch (answer.addType) {
+          case 'EMPLOYEE':
+            addEmployee();
+            break;
+  
+          case 'ROLE':
+            addRole();
+            break;
+  
+          case 'DEPARTMENT':
+            addDepartment();
+            break;
+  
+          case 'EXIT':
+            connction.end();
+  
+          // default:
+          //   console.log(`Invalid action: ${answer.action}`);
+          //   break;
+        }
+      });
+  };
+  
+   const addEmployee = () => {
+     inquirer
+     .prompt([
+       {
+        name: "first_name",
+        type: "input",
+        message: "what is the employee's first name"
+       },
+
+       {
+        name: "last_name",
+        type: "input",
+        message: "what is the employee's last name"
+       },
+
+      {
+        name: "manager_id",
+        type: "rowlist",
+        message: "what is the employee's Manager Id. Please inter the manager id that correspondes to the manager id ie.. 8 =Tim Kevin, 10 = Musa Daniel, 11 = Helen Dobrik, or null = no Manager ",
+       
+       },
+
+       {
+        name: "role_id",
+        type: "rowlist",
+        message: "what is the employee's role Id? Inter the role Id that correspondes to the   role ie. 24 = software Engineer, 25 = Finance, 26 = Sales, 27 = Purchase, 28 = human resources, 29 = IT, 30 = Intern or enter a new Role id ",
+       
+       },
+       
+     ])
+
+     .then(function (answer){
+        connection.query("INSERT INTO employee SET ?",
+          {
+            first_name: answer.first_name,
+            last_name: answer.last_name,
+            manager_id:answer.manager_id || 0,
+            role_id: answer.role_id,
+            
+          },
+          function(err) {
+            if(err) throw err;
+            console.log("----------------------");
+            console.log("New employee has been added");
+            console.log("----------------------");
+            afterConnection();
+            
+          }
+        );
+     })
+    }
+    
+    const addRole = () => {
+      inquirer
+      .prompt([
+        {
+         name: "title",
+         type: "input",
+         message: "please enter the title of the new role?",
+        
+        },
+ 
+        {
+         name: "salary",
+         type: "input",
+         message: "what is the role's salary?"
+        },
+ 
+       {
+         name: "department_id",
+         type: "rowlist",
+         message: "please enter the number that corresponds to the new role's you wish to enter other than the following 1, 2, 3, 4, 5, 6. 7",
+        
+        
+        },
+ 
+        
+      ])
+ 
+      .then(function (answer){
+         connection.query("INSERT INTO role SET ?",
+           {
+             title: answer.title,
+             salary:answer.salary,
+             department_id: answer.department_id,
+             
+           },
+           function(err) {
+             if(err) throw err;
+             console.log("----------------------");
+             console.log("New role has been added");
+             console.log("----------------------");
+             afterConnection();
+             
+           }
+         );
+      })
+     }
 
 
 
-// connection.connect((err) => {
-//   if (err) throw err;
-//   runSearch();
-// });
+     const addDepartment = () => {
+      inquirer
+      .prompt([
+        {
+         name: "name",
+         type: "input",
+         message: "please enter the name of the department you wish to enter?",
+        
+        },
+ 
+       
+        
+      ])
+ 
+      .then(function (answer){
+         connection.query("INSERT INTO department SET ?",
+           {
+            name: answer.name,
+            
+             
+           },
+           function(err) {
+             if(err) throw err;
+             console.log("----------------------");
+             console.log("New department has been added");
+             console.log("----------------------");
+             afterConnection();
+             
+           }
+         );
+      })
+     }
 
-// const runSearch = () => {
-//   inquirer
-//     .prompt({
-//       name: 'action',
-//       type: 'rawlist',
-//       message: 'What would you like to do?',
-//       choices: [
-//         'Find songs by artist',
-//         'Find all artists who appear more than once',
-//         'Find data within a specific range',
-//         'Search for a specific song',
-//         'Find artists with a top song and top album in the same year',
-//       ],
-//     })
-//     .then((answer) => {
-//       switch (answer.action) {
-//         case 'Find songs by artist':
-//           artistSearch();
-//           break;
 
-//         case 'Find all artists who appear more than once':
-//           multiSearch();
-//           break;
 
-//         case 'Find data within a specific range':
-//           rangeSearch();
-//           break;
+     const updateEmployee = () => {
+      inquirer
+        .prompt([
+        {
+         name: "first_name_employee",
+         type: "input",
+         message: "please chose the name of the empoyee whose role you wish to update?",
+        
+        },
+        {
+          name: "new_role_id",
+          type: "input",
+          message: "Please enter the number that correspondes to the new role you wish to update?",
+          
+        
+         
+         },
+ 
+       
+        
+      ])
+ 
+      .then(function(answer){
+         connection.query(" UPDATE  employee SET ? WHERE ?",
+           [
+             {
+              role_id: answer.new_role_id,
+             },
+             {
+               first_name: answer.first_name_employee
+             },
+           
+            
+             
+            ],
+           function(err, res) {
+             if(err) throw err;
+             console.log("----------------------");
+             console.log(`${res.affectedRows} employee role updated!\n`);
+             console.log("New role_id has been updated");
+             console.log("----------------------");
+            afterConnection();
+             
+           }
+         );
+      })
+     };
 
-//         case 'Search for a specific song':
-//           songSearch();
-//           break;
+    
+    
+    //  const deleteProduct = () => {
+    //   console.log('Deleting all strawberry icecream...\n');
+    //   connection.query(
+    //     'DELETE FROM products WHERE ?',
+    //     {
+    //       flavor: 'strawberry',
+    //     },
+    //     (err, res) => {
+    //       if (err) throw err;
+    //       console.log(`${res.affectedRows} products deleted!\n`);
+    //       // Call readProducts AFTER the DELETE completes
+    //       readProducts();
+    //     }
+    //   );
+    // };
+    
 
-//         case 'Find artists with a top song and top album in the same year':
-//           songAndAlbumSearch();
-//           break;
 
-//         default:
-//           console.log(`Invalid action: ${answer.action}`);
-//           break;
-//       }
-//     });
-// };
 
-// const artistSearch = () => {
-//   inquirer
-//     .prompt({
-//       name: 'artist',
-//       type: 'input',
-//       message: 'What artist would you like to search for?',
-//     })
-//     .then((answer) => {
-//       const query = 'SELECT position, song, year FROM top5000 WHERE ?';
-//       connection.query(query, { artist: answer.artist }, (err, res) => {
-//         res.forEach(({ position, song, year }) => {
-//           console.log(
-//             `Position: ${position} || Song: ${song} || Year: ${year}`
-//           );
-//         });
-//         runSearch();
-//       });
-//     });
-// };
 
-// const multiSearch = () => {
-//   const query =
-//     'SELECT artist FROM top5000 GROUP BY artist HAVING count(*) > 1';
-//   connection.query(query, (err, res) => {
-//     res.forEach(({ artist }) => console.log(artist));
-//     runSearch();
-//   });
-// };
-
-// const rangeSearch = () => {
-//   inquirer
-//     .prompt([
-//       {
-//         name: 'start',
-//         type: 'input',
-//         message: 'Enter starting position: ',
-//         validate(value) {
-//           if (isNaN(value) === false) {
-//             return true;
-//           }
-//           return false;
-//         },
-//       },
-//       {
-//         name: 'end',
-//         type: 'input',
-//         message: 'Enter ending position: ',
-//         validate(value) {
-//           if (isNaN(value) === false) {
-//             return true;
-//           }
-//           return false;
-//         },
-//       },
-//     ])
-//     .then((answer) => {
-//       const query =
-//         'SELECT position,song,artist,year FROM top5000 WHERE position BETWEEN ? AND ?';
-//       connection.query(query, [answer.start, answer.end], (err, res) => {
-//         res.forEach(({ position, song, artist, year }) => {
-//           console.log(
-//             `Position: ${position} || Song: ${song} || Artist: ${artist} || Year: ${year}`
-//           );
-//         });
-//         runSearch();
-//       });
-//     });
-// };
-
-// const songSearch = () => {
-//   inquirer
-//     .prompt({
-//       name: 'song',
-//       type: 'input',
-//       message: 'What song would you like to look for?',
-//     })
-//     .then((answer) => {
-//       console.log(answer.song);
-//       connection.query(
-//         'SELECT * FROM top5000 WHERE ?',
-//         { song: answer.song },
-//         (err, res) => {
-//           if (res[0]) {
-//             console.log(
-//               `Position: ${res[0].position} || Song: ${res[0].song} || Artist: ${res[0].artist} || Year: ${res[0].year}`
-//             );
-//           } else {
-//             console.error(`No results for ${answer.song}`);
-//           }
-//           runSearch();
-//         }
-//       );
-//     });
-// };
-
-// const songAndAlbumSearch = () => {
-//   inquirer
-//     .prompt({
-//       name: 'artist',
-//       type: 'input',
-//       message: 'What artist would you like to search for?',
-//     })
-//     .then((answer) => {
-//       let query =
-//         'SELECT top_albums.year, top_albums.album, top_albums.position, top5000.song, top5000.artist ';
-//       query +=
-//         'FROM top_albums INNER JOIN top5000 ON (top_albums.artist = top5000.artist AND top_albums.year ';
-//       query +=
-//         '= top5000.year) WHERE (top_albums.artist = ? AND top5000.artist = ?) ORDER BY top_albums.year, top_albums.position';
-
-//       connection.query(query, [answer.artist, answer.artist], (err, res) => {
-//         console.log(`${res.length} matches found!`);
-//         res.forEach(({ year, position, artist, song, album }, i) => {
-//           const num = i + 1;
-//           console.log(
-//             `${num} Year: ${year} Position: ${position} || Artist: ${artist} || Song: ${song} || Album: ${album}`
-//           );
-//         });
-
-//         runSearch();
-//       });
-//     });
-// };
+    //   const addEmployee = () => {
+    //   console.log('adding all employee...\n');
+    //   connection.query('SELECT * FROM employee', (err, res) => {
+    //     if (err) throw err;
+    //     // Log all results of the SELECT statement
+    //     console.table(res);
+        
+    //   });
+    // };
+  
+    // const viewRole = () => {
+    //   console.log('Selecting all role...\n');
+    //   connection.query('SELECT * FROM role', (err, res) => {
+    //     if (err) throw err;
+    //     // Log all results of the SELECT statement
+    //     console.table(res);
+        
+    //   });
+    // };
+  
+    // const viewDepartment = () => {
+    //   console.log('Selecting all department...\n');
+    //   connection.query('SELECT * FROM department', (err, res) => {
+    //     if (err) throw err;
+    //     // Log all results of the SELECT statement
+    //     console.table(res);
+    //     afterConnection();
+    //   });
+    // };
