@@ -8,8 +8,9 @@ const connectionProperties = {
     user: 'root',
   
     // Be sure to update with your own MySQL password!
-    password: '',
+    password: 'password',
     database: 'employee_tracker_DB',
 
 };
+
 module.exports = connectionProperties;
