@@ -1,9 +1,9 @@
-const mysql = require('mysql');
+
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-const connection = require('./db/connection');
+const connection = require('./config/connection');
 const promisemysql = require("promise-mysql");
-const connectionProperties = require('./db/connectionProperties')
+const connectionProperties = require('./config/connectionProperties')
 
 const afterConnection = () => {
   
